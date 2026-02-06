@@ -1,3 +1,5 @@
+# SPDX-License-Identifier: BSD-3-Clause
+# Copyright (c) 2025-2026 @yosagi
 """Command-line argument parsing."""
 import argparse
 import sys

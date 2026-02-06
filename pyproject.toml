@@ -3,8 +3,9 @@ name = "osc-tap"
 version = "0.1.0"
 description = "OSC sequence capture wrapper - tap into terminal OSC sequences"
 readme = "README.md"
+license = "BSD-3-Clause"
 authors = [
-    { name = "Tomoaki Yoshida[Z4]", email = "yoshida@furo.org" }
+    { name = "@yosagi" }
 ]
 requires-python = ">=3.10"
 dependencies = []
