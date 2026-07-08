@@ -45,7 +45,49 @@ osc-tap \
   --matcher SESSION_START '1337;SetUserVar=SESSION_START=(.*)' \
   --matcher CONTEXT '1337;SetUserVar=CONTEXT=(.*)' \
   -- claude
+
+# Capture titles and session info (see "Session identification hook" below)
+osc-tap \
+  --output ~/.claude/osc-logs/ \
+  --matcher TITLE '0;(.*)' \
+  --matcher TRANSCRIPT '10321;TRANSCRIPT=(.*)' \
+  --matcher CWD '10321;CWD=(.*)' \
+  --matcher SESSION_ID '10321;SESSION_ID=(.*)' \
+  -- claude
 ```
+
+## Session identification hook (Claude Code)
+
+osc-tap logs are named by launch time, so by themselves they carry no clue
+about which Claude Code session they belong to. `hooks/osc_session_start.sh`
+fills this gap: registered as a Claude Code `SessionStart` hook, it emits the
+session ID, transcript path, and working directory as OSC 10321 sequences at
+session start, which osc-tap captures alongside titles (see the last example
+above for the matching matchers). The number 10321 has no special meaning —
+it is just an arbitrary code picked from the unassigned range to avoid
+collisions; any number not used by your terminal works, as long as the hook
+and the matchers agree.
+
+```bash
+# Copies itself to ~/.claude/hooks/ and registers in ~/.claude/settings.json
+./hooks/osc_session_start.sh --install
+
+# Check / remove
+./hooks/osc_session_start.sh --status
+./hooks/osc_session_start.sh --uninstall
+```
+
+A log file containing a `SESSION_ID` entry can then be associated with that
+session, e.g.:
+
+```jsonl
+{"ts": "2026-07-08T22:27:04+09:00", "matcher": "SESSION_ID", "string": "d3ad4a94-..."}
+```
+
+Note: since Claude Code 2.1.139, hook processes are spawned without a
+controlling terminal, so a plain `> /dev/tty` no longer works. The hook works
+around this by walking up the parent process chain and writing to the first
+pty file descriptor it finds.
 
 ## Log Format
 
